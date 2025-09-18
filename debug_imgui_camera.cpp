@@ -6,8 +6,11 @@
 
 #include <sstream>
 #include <vector>
+#include <fstream>
 
 #include "debug_ostream.h"
+
+static std::string CAMERA_PRESET_FILE = "camera_preset.csv";
 
 // camera data
 static DirectX::XMFLOAT3 g_CameraFront;
@@ -30,6 +33,45 @@ struct CameraPreset
 
 static std::vector<CameraPreset> g_CameraPresets = {};
 static int g_CameraPresetIndex = -1;
+
+void DebugImGui_Camera_Initialize()
+{
+    std::ifstream file(CAMERA_PRESET_FILE);
+
+    if (file.is_open())
+    {
+        std::string line;
+        std::getline(file, line); // skip header
+
+        while (std::getline(file, line))
+        {
+            std::stringstream ss(line);
+            std::string item;
+            CameraPreset preset;
+
+            // label
+            std::getline(ss, preset.label, ',');
+
+            auto split = [ss_ = &ss](DirectX::XMFLOAT3& float3) -> void
+            {
+                char comma;
+                float x, y, z;
+                (*ss_) >> x >> comma;
+                (*ss_) >> y >> comma;
+                (*ss_) >> z >> comma;
+                float3 = { x, y, z };
+            };
+
+            split(preset.front);
+            split(preset.up);
+            split(preset.right);
+            split(preset.position);
+            g_CameraPresets.push_back(preset);
+        }
+    }
+}
+
+void DebugImGui_Camera_Finalize() {}
 
 void DebugImGui_UpdateCameraData(
     DirectX::XMFLOAT3 camera_front,
@@ -132,6 +174,23 @@ namespace
         }
     }
 
+    void DebugImGui_CameraSavePresetsToFile()
+    {
+        std::ofstream file(CAMERA_PRESET_FILE);
+        if (file.is_open())
+        {
+            file << "Label,front_x,front_y,front_z,up_x,up_y,up_z,right_x,right_y,right_z,position_x,position_y,position_z\n";
+
+            for (auto p : g_CameraPresets)
+            {
+                file << std::setprecision(8);
+                file << p.label << "," << p.front.x << "," << p.front.y << "," << p.front.z << "," << p.up.x << "," << p.up.y << "," << p.up.z << "," << p.right.x << "," << p.right.y << "," << p.right.z << "," << p.position.x << "," << p.position.y << "," << p.position.z << "\n";
+            }
+
+            file.close();
+        }
+    }
+
     void DebugImGui_CameraPresetsWidget()
     {
         if (ImGui::TreeNode("Camera Preset"))
@@ -156,6 +215,7 @@ namespace
                     g_CameraPosition
                 });
                 label_buf[0] = '\0';
+                DebugImGui_CameraSavePresetsToFile();
             }
 
             ImGui::SameLine();

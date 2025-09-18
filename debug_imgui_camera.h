@@ -4,6 +4,9 @@
 #include <DirectXMath.h>
 #include <functional>
 
+void DebugImGui_Camera_Initialize();
+void DebugImGui_Camera_Finalize();
+
 void DebugImGui_UpdateCameraData(
     DirectX::XMFLOAT3 camera_front,
     DirectX::XMFLOAT3 camera_up,

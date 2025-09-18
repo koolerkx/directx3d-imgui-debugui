@@ -27,10 +27,14 @@ void DebugImGui_Initialize(HWND hwnd, ID3D11Device* pDevice, ID3D11DeviceContext
     // Setup Platform/Renderer backends
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(pDevice, pContext);
+
+    DebugImGui_Camera_Initialize();
 }
 
 void DebugImGui_Finalize()
 {
+    DebugImGui_Camera_Finalize();
+    
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
