@@ -8,6 +8,8 @@
 
 #include <Windows.h>
 #include <d3d11.h>
+#include <DirectXMath.h>
+#include <functional>
 
 void DebugImGui_Initialize(HWND hwnd, ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 void DebugImGui_Finalize(void);

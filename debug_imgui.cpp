@@ -9,8 +9,12 @@
 #include "lib/imgui_impl_win32.h"
 #include "lib/imgui_impl_dx11.h"
 
+#include "debug_imgui_camera.h"
+
 void DebugImGui_Initialize(HWND hwnd, ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {
+    ImGui_ImplWin32_EnableDpiAwareness();
+
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -36,6 +40,17 @@ void DebugImGui_Update()
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
     ImGui::ShowDemoWindow();
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.FontGlobalScale = 1.5f;
+
+    ImGui::SetNextWindowPos(ImVec2(16, 16));
+    ImGui::Begin("Game Metrics", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+
+    DebugImGui_CameraUpdate();
+
+    ImGui::End();
 }
 
 void DebugImGui_Draw()
