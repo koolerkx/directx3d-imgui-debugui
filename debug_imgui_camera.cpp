@@ -5,6 +5,9 @@
 #include "lib/imgui.h"
 
 #include <sstream>
+#include <vector>
+
+#include "debug_ostream.h"
 
 // camera data
 static DirectX::XMFLOAT3 g_CameraFront;
@@ -16,6 +19,17 @@ static std::function<void(DirectX::XMFLOAT3 cb)> g_OnCameraFrontChanged = nullpt
 static std::function<void(DirectX::XMFLOAT3 cb)> g_OnCameraUpChanged = nullptr;
 static std::function<void(DirectX::XMFLOAT3 cb)> g_OnCameraRightChanged = nullptr;
 
+struct CameraPreset
+{
+    std::string label;
+    DirectX::XMFLOAT3 front;
+    DirectX::XMFLOAT3 up;
+    DirectX::XMFLOAT3 right;
+    DirectX::XMFLOAT3 position;
+};
+
+static std::vector<CameraPreset> g_CameraPresets = {};
+static int g_CameraPresetIndex = -1;
 
 void DebugImGui_UpdateCameraData(
     DirectX::XMFLOAT3 camera_front,
@@ -117,6 +131,82 @@ namespace
             ImGui::EndPopup();
         }
     }
+
+    void DebugImGui_CameraPresetsWidget()
+    {
+        if (ImGui::TreeNode("Camera Preset"))
+        {
+            static char label_buf[256] = "";
+
+            if (ImGui::Button("Save"))
+            {
+                for (auto p : g_CameraPresets)
+                {
+                    if (p.label == std::string(label_buf))
+                    {
+                        label_buf[0] = '\0'; // same label cause same id make error
+                    }
+                }
+
+                g_CameraPresets.push_back({
+                    label_buf[0] == '\0' ? std::to_string(++g_CameraPresetIndex) : std::string(label_buf),
+                    g_CameraFront,
+                    g_CameraUp,
+                    g_CameraRight,
+                    g_CameraPosition
+                });
+                label_buf[0] = '\0';
+            }
+
+            ImGui::SameLine();
+            ImGui::InputTextWithHint("##presets_name",
+                                     ("Presets name, default: " + std::to_string(g_CameraPresetIndex + 1)).c_str(),
+                                     label_buf, IM_ARRAYSIZE(label_buf));
+
+            if (g_CameraPresets.size() > 0)
+            {
+                ImGui::AlignTextToFramePadding();
+                ImGui::Text("Load");
+
+                int item_to_delete = -1;
+                for (int i = 0; i < g_CameraPresets.size(); i++)
+                {
+                    ImGui::SameLine();
+                    if (ImGui::Button(g_CameraPresets[i].label.c_str()))
+                    {
+                        if (g_OnCameraFrontChanged && g_OnCameraRightChanged && g_OnCameraUpChanged && g_OnCameraPositionChanged)
+                        {
+                            g_CameraPosition = g_CameraPresets[i].position;
+                            g_CameraFront = g_CameraPresets[i].front;
+                            g_CameraUp = g_CameraPresets[i].up;
+                            g_CameraRight = g_CameraPresets[i].right;
+
+                            g_OnCameraPositionChanged(g_CameraPosition);
+                            g_OnCameraFrontChanged(g_CameraFront);
+                            g_OnCameraUpChanged(g_CameraUp);
+                            g_OnCameraRightChanged(g_CameraRight);
+                        }
+                    }
+                    if (ImGui::BeginPopupContextItem(("##button_ctx_menu" + g_CameraPresets[i].label + "_delete_pop").c_str()))
+                    {
+                        if (ImGui::MenuItem(("Delete presets " + g_CameraPresets[i].label).c_str()))
+                        {
+                            item_to_delete = i;
+                        }
+                        ImGui::EndPopup();
+                    }
+                }
+
+                if (item_to_delete >= 0 && item_to_delete < g_CameraPresets.size())
+                {
+                    g_CameraPresets.erase(g_CameraPresets.begin() + item_to_delete);
+                }
+            }
+
+            ImGui::TreePop();
+            ImGui::Spacing();
+        }
+    }
 }
 
 void DebugImGui_CameraUpdate()
@@ -132,4 +222,5 @@ void DebugImGui_CameraUpdate()
     DebugImGui_CameraOrientationWidget("Camera Front   ", "cam_front", camera_front, g_OnCameraFrontChanged);
     DebugImGui_CameraOrientationWidget("Camera Up      ", "cam_up", camera_up, g_OnCameraUpChanged);
     DebugImGui_CameraOrientationWidget("Camera Right   ", "cam_right", camera_right, g_OnCameraRightChanged);
+    DebugImGui_CameraPresetsWidget();
 }

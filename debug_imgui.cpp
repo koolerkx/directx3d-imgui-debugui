@@ -53,8 +53,12 @@ void DebugImGui_Update()
 
         // FPS
         ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        ImGui::Spacing();
 
-        DebugImGui_CameraUpdate();
+        if (ImGui::CollapsingHeader("Camera"))
+        {
+            DebugImGui_CameraUpdate();
+        }
 
         ImGui::End();
     }
