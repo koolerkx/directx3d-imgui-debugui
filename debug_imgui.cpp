@@ -11,6 +11,8 @@
 
 #include "debug_imgui_camera.h"
 
+static bool is_show_panel = true;
+
 void DebugImGui_Initialize(HWND hwnd, ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {
     ImGui_ImplWin32_EnableDpiAwareness();
@@ -44,13 +46,18 @@ void DebugImGui_Update()
     ImGuiIO& io = ImGui::GetIO();
     io.FontGlobalScale = 1.5f;
 
-    ImGui::SetNextWindowPos(ImVec2(16, 16));
-    ImGui::Begin("Game Metrics", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+    if (is_show_panel)
+    {
+        ImGui::SetNextWindowPos(ImVec2(16, 16));
+        ImGui::Begin("Game Metrics", &is_show_panel, ImGuiWindowFlags_AlwaysAutoResize);
 
-    DebugImGui_CameraUpdate();
+        // FPS
+        ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 
-    ImGui::End();
+        DebugImGui_CameraUpdate();
+
+        ImGui::End();
+    }
 }
 
 void DebugImGui_Draw()
