@@ -1,6 +1,6 @@
 /**
  * @file debug_imgui.h
- * @brief 繝�繝舌ャ繧ｰIMGUI
+ * @brief デバッグIMGUI
  */
 
 #include "debug_imgui.h"
@@ -45,7 +45,7 @@ void DebugImGui_Update()
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-    ImGui::ShowDemoWindow();
+    // ImGui::ShowDemoWindow();
 
     ImGuiIO& io = ImGui::GetIO();
     io.FontGlobalScale = 1.5f;
