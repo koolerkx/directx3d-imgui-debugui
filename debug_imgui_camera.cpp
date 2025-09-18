@@ -21,6 +21,7 @@ static std::function<void(DirectX::XMFLOAT3 cb)> g_OnCameraPositionChanged = nul
 static std::function<void(DirectX::XMFLOAT3 cb)> g_OnCameraFrontChanged = nullptr;
 static std::function<void(DirectX::XMFLOAT3 cb)> g_OnCameraUpChanged = nullptr;
 static std::function<void(DirectX::XMFLOAT3 cb)> g_OnCameraRightChanged = nullptr;
+static std::function<void(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 front, DirectX::XMFLOAT3 up)> g_OnCameraPresetApply = nullptr;
 
 struct CameraPreset
 {
@@ -68,6 +69,7 @@ void DebugImGui_Camera_Initialize()
             split(preset.position);
             g_CameraPresets.push_back(preset);
         }
+        g_CameraPresetIndex = g_CameraPresets.size() - 1;
     }
 }
 
@@ -104,6 +106,11 @@ void DebugImGui_SetOnCameraUpChanged(const std::function<void(DirectX::XMFLOAT3 
 void DebugImGui_SetOnCameraRightChanged(const std::function<void(DirectX::XMFLOAT3 camera_right)>& callback)
 {
     g_OnCameraRightChanged = callback;
+}
+
+void DebugImGui_SetOnCameraPresetApply(const std::function<void(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 front, DirectX::XMFLOAT3 up)>& callback)
+{
+    g_OnCameraPresetApply = callback;
 }
 
 namespace
@@ -241,10 +248,10 @@ namespace
                             g_CameraUp = g_CameraPresets[i].up;
                             g_CameraRight = g_CameraPresets[i].right;
 
-                            g_OnCameraPositionChanged(g_CameraPosition);
-                            g_OnCameraFrontChanged(g_CameraFront);
-                            g_OnCameraUpChanged(g_CameraUp);
-                            g_OnCameraRightChanged(g_CameraRight);
+                            if (g_OnCameraPresetApply)
+                            {
+                                g_OnCameraPresetApply(g_CameraPosition, g_CameraFront, g_CameraUp);
+                            }
                         }
                     }
                     if (ImGui::BeginPopupContextItem(("##button_ctx_menu" + g_CameraPresets[i].label + "_delete_pop").c_str()))

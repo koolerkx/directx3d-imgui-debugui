@@ -18,6 +18,7 @@ void DebugImGui_SetOnCameraPositionChanged(const std::function<void(DirectX::XMF
 void DebugImGui_SetOnCameraFrontChanged(const std::function<void(DirectX::XMFLOAT3 camera_front)>& callback = {});
 void DebugImGui_SetOnCameraUpChanged(const std::function<void(DirectX::XMFLOAT3 camera_up)>& callback = {});
 void DebugImGui_SetOnCameraRightChanged(const std::function<void(DirectX::XMFLOAT3 camera_right)>& callback = {});
+void DebugImGui_SetOnCameraPresetApply(const std::function<void(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 front, DirectX::XMFLOAT3 up)>& callback = {});
 
 void DebugImGui_CameraUpdate();
 
