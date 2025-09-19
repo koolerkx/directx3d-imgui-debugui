@@ -17,11 +17,15 @@ static DirectX::XMFLOAT3 g_CameraFront;
 static DirectX::XMFLOAT3 g_CameraUp;
 static DirectX::XMFLOAT3 g_CameraRight;
 static DirectX::XMFLOAT3 g_CameraPosition;
+static float g_CameraFov;
+
 static std::function<void(DirectX::XMFLOAT3 cb)> g_OnCameraPositionChanged = nullptr;
 static std::function<void(DirectX::XMFLOAT3 cb)> g_OnCameraFrontChanged = nullptr;
 static std::function<void(DirectX::XMFLOAT3 cb)> g_OnCameraUpChanged = nullptr;
 static std::function<void(DirectX::XMFLOAT3 cb)> g_OnCameraRightChanged = nullptr;
 static std::function<void(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 front, DirectX::XMFLOAT3 up)> g_OnCameraPresetApply = nullptr;
+static std::function<void(float fov)> g_OnFovChanged = nullptr;
+
 
 struct CameraPreset
 {
@@ -79,13 +83,15 @@ void DebugImGui_UpdateCameraData(
     DirectX::XMFLOAT3 camera_front,
     DirectX::XMFLOAT3 camera_up,
     DirectX::XMFLOAT3 camera_right,
-    DirectX::XMFLOAT3 camera_position
+    DirectX::XMFLOAT3 camera_position,
+    float camera_fov
     )
 {
     g_CameraFront = camera_front;
     g_CameraUp = camera_up;
     g_CameraRight = camera_right;
     g_CameraPosition = camera_position;
+    g_CameraFov = camera_fov;
 }
 
 void DebugImGui_SetOnCameraPositionChanged(const std::function<void(DirectX::XMFLOAT3 camera_position)>& callback)
@@ -111,6 +117,11 @@ void DebugImGui_SetOnCameraRightChanged(const std::function<void(DirectX::XMFLOA
 void DebugImGui_SetOnCameraPresetApply(const std::function<void(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 front, DirectX::XMFLOAT3 up)>& callback)
 {
     g_OnCameraPresetApply = callback;
+}
+
+void DebugImGui_SetOnCameraFovChanged(const std::function<void(float fov)>& callback)
+{
+    g_OnFovChanged = callback;
 }
 
 namespace
@@ -274,6 +285,19 @@ namespace
             ImGui::Spacing();
         }
     }
+
+    void DebugImGui_CameraFovWidget()
+    {
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("FOV");
+        ImGui::SameLine();
+        bool edited = ImGui::DragFloat(("##camera fov"), &g_CameraFov, 0.5f, 1.0f, 180.0f);
+
+        if (edited)
+        {
+            g_OnFovChanged(g_CameraFov);
+        }
+    }
 }
 
 void DebugImGui_CameraUpdate()
@@ -289,5 +313,6 @@ void DebugImGui_CameraUpdate()
     DebugImGui_CameraOrientationWidget("Camera Front   ", "cam_front", camera_front, g_OnCameraFrontChanged);
     DebugImGui_CameraOrientationWidget("Camera Up      ", "cam_up", camera_up, g_OnCameraUpChanged);
     DebugImGui_CameraOrientationWidget("Camera Right   ", "cam_right", camera_right, g_OnCameraRightChanged);
+    DebugImGui_CameraFovWidget();
     DebugImGui_CameraPresetsWidget();
 }
