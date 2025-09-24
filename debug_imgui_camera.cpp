@@ -73,7 +73,7 @@ void DebugImGui_Camera_Initialize()
             split(preset.position);
             g_CameraPresets.push_back(preset);
         }
-        g_CameraPresetIndex = g_CameraPresets.size() - 1;
+        g_CameraPresetIndex = static_cast<int>(g_CameraPresets.size()) - 1;
     }
 }
 
