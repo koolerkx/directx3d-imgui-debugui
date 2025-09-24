@@ -10,6 +10,7 @@
 #include "lib/imgui_impl_dx11.h"
 
 #include "debug_imgui_camera.h"
+#include "debug_imgui_mesh_field.h"
 
 static bool is_show_panel = true;
 
@@ -29,12 +30,14 @@ void DebugImGui_Initialize(HWND hwnd, ID3D11Device* pDevice, ID3D11DeviceContext
     ImGui_ImplDX11_Init(pDevice, pContext);
 
     DebugImGui_Camera_Initialize();
+    DebugImGui_MeshField_Initialize();
 }
 
 void DebugImGui_Finalize()
 {
     DebugImGui_Camera_Finalize();
-    
+    DebugImGui_MeshField_Finalize();
+
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
@@ -63,7 +66,11 @@ void DebugImGui_Update()
         {
             DebugImGui_CameraUpdate();
         }
-
+        if (ImGui::CollapsingHeader("Mesh Field"))
+        {
+            DebugImGui_MeshFieldUpdate();
+        }
+        
         ImGui::End();
     }
 }
