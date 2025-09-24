@@ -11,6 +11,7 @@
 
 #include "debug_imgui_camera.h"
 #include "debug_imgui_mesh_field.h"
+#include "debug_imgui_render.h"
 
 static bool is_show_panel = true;
 
@@ -29,12 +30,14 @@ void DebugImGui_Initialize(HWND hwnd, ID3D11Device* pDevice, ID3D11DeviceContext
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(pDevice, pContext);
 
+    DebugImGui_Render_Initialize();
     DebugImGui_Camera_Initialize();
     DebugImGui_MeshField_Initialize();
 }
 
 void DebugImGui_Finalize()
 {
+    DebugImGui_Render_Finalize();
     DebugImGui_Camera_Finalize();
     DebugImGui_MeshField_Finalize();
 
@@ -62,6 +65,10 @@ void DebugImGui_Update()
         ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
         ImGui::Spacing();
 
+        if (ImGui::CollapsingHeader("Render"))
+        {
+            DebugImGui_RenderUpdate();
+        }
         if (ImGui::CollapsingHeader("Camera"))
         {
             DebugImGui_CameraUpdate();
